@@ -35,35 +35,41 @@ install_macos() {
     sleep 1
 
     echo "Building release version..."
-    npm run tauri build
+    npm run tauri build -- --no-sign
 
     echo "Installing to /Applications..."
-    rm -rf /Applications/Promptlight.app 2>/dev/null || true
-    cp -R src-tauri/target/release/bundle/macos/Promptlight.app /Applications/
+    rm -rf /Applications/Promptlight.app /Applications/PromptLight.app 2>/dev/null || true
+    cp -R src-tauri/target/release/bundle/macos/PromptLight.app /Applications/
 
     # Re-sign with entitlements for accessibility features (paste simulation)
     # Uses "PromptLight Dev" certificate if available for stable identity
     ENTITLEMENTS="src-tauri/entitlements.plist"
     if [[ -f "$ENTITLEMENTS" ]]; then
         echo "Signing app with entitlements..."
+        xattr -cr /Applications/PromptLight.app
 
         # Check for PromptLight Dev certificate
         if security find-identity -v -p codesigning | grep -q "PromptLight Dev"; then
             echo "Using 'PromptLight Dev' certificate for stable identity"
-            codesign --force --deep --sign "PromptLight Dev" --entitlements "$ENTITLEMENTS" /Applications/Promptlight.app
+            if codesign --force --deep --sign "PromptLight Dev" --entitlements "$ENTITLEMENTS" /Applications/PromptLight.app; then
+                echo "Signed with 'PromptLight Dev'"
+            else
+                echo "Warning: 'PromptLight Dev' signing failed. Falling back to ad-hoc signature."
+                codesign --force --deep --sign - --entitlements "$ENTITLEMENTS" /Applications/PromptLight.app
+            fi
         else
             echo "Warning: Using ad-hoc signature (accessibility permissions may reset on updates)"
             echo "Run scripts/create-dev-certificate.sh to create a stable signing identity"
-            codesign --force --deep --sign - --entitlements "$ENTITLEMENTS" /Applications/Promptlight.app
+            codesign --force --deep --sign - --entitlements "$ENTITLEMENTS" /Applications/PromptLight.app
         fi
     fi
 
     echo ""
-    echo -e "${GREEN}Done! PromptLight installed to /Applications/Promptlight.app${NC}"
+    echo -e "${GREEN}Done! PromptLight installed to /Applications/PromptLight.app${NC}"
     echo ""
     echo -e "${YELLOW}IMPORTANT: For paste functionality, you must grant Accessibility permission:${NC}"
     echo "  1. Open System Settings > Privacy & Security > Accessibility"
-    echo "  2. Click '+' and add /Applications/Promptlight.app"
+    echo "  2. Click '+' and add /Applications/PromptLight.app"
     echo "  3. Ensure the toggle is ON"
     echo ""
     echo "Opening Privacy & Security settings..."

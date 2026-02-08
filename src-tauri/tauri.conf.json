@@ -45,8 +45,7 @@
       "entitlements": "entitlements.plist",
       "exceptionDomain": null,
       "frameworks": [],
-      "providerShortName": null,
-      "signingIdentity": "PromptLight Dev"
+      "providerShortName": null
     }
   }
 }

@@ -176,8 +176,12 @@ sign_bundle() {
     if [[ ! -d "$bundle_path" ]]; then
         return
     fi
+    xattr -cr "$bundle_path"
     if security find-identity -v -p codesigning | grep -q "$SIGN_IDENTITY"; then
-        codesign --force --deep --sign "$SIGN_IDENTITY" --entitlements "$ENTITLEMENTS" "$bundle_path"
+        if ! codesign --force --deep --sign "$SIGN_IDENTITY" --entitlements "$ENTITLEMENTS" "$bundle_path"; then
+            echo -e "${YELLOW}Warning: '$SIGN_IDENTITY' signing failed. Falling back to ad-hoc.${NC}"
+            codesign --force --deep --sign - --entitlements "$ENTITLEMENTS" "$bundle_path"
+        fi
     else
         codesign --force --deep --sign - --entitlements "$ENTITLEMENTS" "$bundle_path"
     fi
@@ -185,12 +189,12 @@ sign_bundle() {
 
 echo ""
 echo "Building Universal binary (works on all Macs)..."
-npm run tauri build -- --target universal-apple-darwin
+npm run tauri build -- --target universal-apple-darwin --no-sign
 
 # Sign the bundle
 echo ""
 echo "Signing bundle..."
-sign_bundle "src-tauri/target/universal-apple-darwin/release/bundle/macos/Promptlight.app"
+sign_bundle "src-tauri/target/universal-apple-darwin/release/bundle/macos/PromptLight.app"
 echo "Bundle signed"
 
 # Install universal build locally
@@ -198,9 +202,9 @@ echo ""
 echo "Installing to /Applications..."
 pkill -9 -f "[Pp]romptlight" 2>/dev/null || true
 sleep 1
-rm -rf /Applications/Promptlight.app
-cp -R "src-tauri/target/universal-apple-darwin/release/bundle/macos/Promptlight.app" /Applications/
-echo -e "${GREEN}Installed to /Applications/Promptlight.app${NC}"
+rm -rf /Applications/Promptlight.app /Applications/PromptLight.app
+cp -R "src-tauri/target/universal-apple-darwin/release/bundle/macos/PromptLight.app" /Applications/
+echo -e "${GREEN}Installed to /Applications/PromptLight.app${NC}"
 
 # Find the DMG
 DMG_UNIVERSAL=$(find src-tauri/target/universal-apple-darwin/release/bundle/dmg -name "*.dmg" 2>/dev/null | head -1)

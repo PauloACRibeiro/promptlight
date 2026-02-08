@@ -25,7 +25,7 @@ echo "Building with GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:0:20}..."
 touch src-tauri/src/auth/google.rs
 
 # Build universal DMG
-npm run tauri build -- --target universal-apple-darwin
+npm run tauri build -- --target universal-apple-darwin --no-sign
 
 # Verify the client ID is embedded
 BINARY="src-tauri/target/universal-apple-darwin/release/bundle/macos/PromptLight.app/Contents/MacOS/promptlight"
