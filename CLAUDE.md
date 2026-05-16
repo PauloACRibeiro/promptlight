@@ -154,7 +154,7 @@ types/                 # TypeScript interfaces for Prompt, Folder, etc.
 - Run `npm run dev` to start - it reads from `.env.local` automatically
 
 ### Presenting Work to User
-When you complete your work and want the user to review it, run the `/dev` slash command.
+When you complete your work and want the user to review it, summarize the change and request review in the thread; do not rely on slash commands.
 
 ## Core Principles
 
