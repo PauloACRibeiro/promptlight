@@ -272,11 +272,11 @@ npx playwright test --debug
 The E2E tests use a **Backend Adapter Pattern** that allows switching between real Tauri backend and a mock in-memory backend:
 
 ```
-services/backend/
+src/services/backend/
 ├── index.ts           # Exports unified `backend` instance
 ├── types.ts           # BackendAdapter interface
-├── TauriAdapter.ts    # Real Tauri backend (invoke calls)
-└── MockAdapter.ts     # In-memory mock for browser testing
+├── tauriAdapter.ts    # Real Tauri backend (invoke calls)
+└── mockAdapter.ts     # In-memory mock for browser testing
 ```
 
 **How it works**:
